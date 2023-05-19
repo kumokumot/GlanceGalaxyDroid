@@ -10,7 +10,7 @@ sealed interface GalaxyState {
 
     @Serializable
     data class Success(
-        val displayString: String,
+        val displayString: String = "",
 
         val myPositionX: Int = 0,
         val enemyPositionList: List<EnemyPosition> = listOf(EnemyPosition(0,0))

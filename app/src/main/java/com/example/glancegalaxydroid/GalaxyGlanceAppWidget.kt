@@ -38,17 +38,6 @@ import kotlinx.coroutines.launch
 class GalaxyGlanceAppWidget : GlanceAppWidget() {
 
     companion object {
-        // 敵機の位置
-        const val KEY_PREFERENCES_ENEMY_1_X: String = "key_preferences_enemy_1_x"
-        const val KEY_PREFERENCES_ENEMY_1_Y: String = "key_preferences_enemy_1_y"
-        const val KEY_PREFERENCES_ENEMY_2_X: String = "key_preferences_enemy_2_x"
-        const val KEY_PREFERENCES_ENEMY_2_Y: String = "key_preferences_enemy_2_y"
-        const val KEY_PREFERENCES_ENEMY_3_X: String = "key_preferences_enemy_3_x"
-        const val KEY_PREFERENCES_ENEMY_3_Y: String = "key_preferences_enemy_3_y"
-
-        // 自機の位置
-        const val KEY_PREFERENCES_MY_X: String = "key_preferences_my_x"
-
         // フィールドのサイズ（Yの長さ）
         const val SIZE_FIELD_COLUMN = 9
         const val FIELD_COLUMN_MAX_INDEX = SIZE_FIELD_COLUMN - 1
@@ -66,37 +55,16 @@ class GalaxyGlanceAppWidget : GlanceAppWidget() {
 
     @Composable
     fun ShootingWidgetUiRoot() {
-//        val prefs = currentState<Preferences>()
-//
-//        val enemy1X = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_1_X)] ?: 0
-//        val enemy1Y = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_1_Y)] ?: 0
-//        val enemy2X = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_2_X)] ?: 0
-//        val enemy2Y = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_2_Y)] ?: 0
-//        val enemy3X = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_3_X)] ?: 0
-//        val enemy3Y = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_3_Y)] ?: 0
-        val enemy1X = 0
-        val enemy1Y = 0
-        val enemy2X = 0
-        val enemy2Y = 0
-        val enemy3X = 0
-        val enemy3Y = 0
-
-//        val myX = prefs[intPreferencesKey(KEY_PREFERENCES_MY_X)] ?: 0
-
         val galaxyState = currentState<GalaxyState>()
         val myX = galaxyState.currentMyPositionX()
+        val enemyPositionList = galaxyState.currentEnemyPositionList()
 
-        ShootingWidgetUi(enemy1X, enemy1Y, enemy2X, enemy2Y, enemy3X, enemy3Y, myX)
+        ShootingWidgetUi(enemyPositionList, myX)
     }
 
     @Composable
     fun ShootingWidgetUi(
-        enemy1X: Int,
-        enemy1Y: Int,
-        enemy2X: Int,
-        enemy2Y: Int,
-        enemy3X: Int,
-        enemy3Y: Int,
+        enemyPositionList: List<EnemyPosition>,
         myX: Int
     ) {
         val context = LocalContext.current
@@ -112,93 +80,108 @@ class GalaxyGlanceAppWidget : GlanceAppWidget() {
             }
         }
 
-        Column(
-            modifier = GlanceModifier.background(
-                imageProvider = ImageProvider(R.drawable.hoshizora59),
-                contentScale = ContentScale.Crop
-            )
-        ) {
+        Box {
+            Column(
+                modifier = GlanceModifier.background(
+                    imageProvider = ImageProvider(R.drawable.hoshizora59),
+                    contentScale = ContentScale.Crop
+                )
+            ) {
 
-            // 敵機 と自機
-            val fieldRowList = List(SIZE_FIELD_COLUMN) { MutableList(SIZE_FIELD_ROW) { 0 } }
-                .apply {
-                    // 敵位置の適用
-                    this[enemy1Y][enemy1X] = 2
-                    if (enemy2Y > 0) this[enemy2Y][enemy2X] = 2
-                    if (enemy3Y > 0) this[enemy3Y][enemy3X] = 2
-
-                    // 自位置の適用
-                    this[FIELD_COLUMN_MAX_INDEX][myX] = 1
-                }
-            fieldRowList.forEach {
-                Row(
-                    modifier = GlanceModifier.defaultWeight()
-                ) {
-                    it.forEach {
-                        Box(modifier = GlanceModifier.defaultWeight())
-                        {
-                            if (it == 2) { // 暫定で2が敵機
-                                Image(
-                                    provider = ImageProvider(
-                                        R.drawable.android_robot
-                                    ),
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(ColorProvider(Color.Cyan))
-                                )
-                            } else if (it == 1) { // 自機
-                                Image(
-                                    provider = ImageProvider(
-                                        R.drawable.jetdroid
-                                    ),
-                                    contentDescription = null,
-                                )
-                            } else {
-                                Box(modifier = GlanceModifier.width(108.dp)) {
-                                }
-                            }
+                // 敵機 と自機
+                val fieldRowList = List(SIZE_FIELD_COLUMN) { MutableList(SIZE_FIELD_ROW) { 0 } }
+                    .apply {
+                        // 敵位置の適用
+                        enemyPositionList.forEach {
+                            this[it.y][it.x] = 2
                         }
 
+                        // 自位置の適用
+                        this[FIELD_COLUMN_MAX_INDEX][myX] = 1
+                    }
+                fieldRowList.forEach {
+                    Row(
+                        modifier = GlanceModifier.defaultWeight()
+                    ) {
+                        it.forEach {
+                            Box(modifier = GlanceModifier.defaultWeight())
+                            {
+                                if (it == 2) { // 暫定で2が敵機
+                                    Image(
+                                        provider = ImageProvider(
+                                            R.drawable.android_robot
+                                        ),
+                                        contentDescription = null,
+                                        colorFilter = ColorFilter.tint(ColorProvider(Color.Cyan))
+                                    )
+                                } else if (it == 1) { // 自機
+                                    Image(
+                                        provider = ImageProvider(
+                                            R.drawable.jetdroid
+                                        ),
+                                        contentDescription = null,
+                                    )
+                                } else {
+                                    Box(modifier = GlanceModifier.width(108.dp)) {
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+
+                // プレイヤー操作UI
+                Row(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = GlanceModifier.fillMaxWidth().padding(20.dp)
+                        .background(Color.White.copy(alpha = 0.1f))
+                        .height(88.dp)
+                ) {
+                    // Left
+                    Box(
+                        contentAlignment = Alignment.CenterStart,
+                        modifier = GlanceModifier.defaultWeight()
+                    ) {
+                        Image(
+                            provider = ImageProvider(
+                                R.drawable.baseline_arrow_left_24
+                            ),
+                            contentDescription = null,
+                            modifier = GlanceModifier.size(80.dp)
+                                .clickable(actionRunCallback<LeftAction>())
+                        )
+                    }
+                    //  Right
+                    Box(
+                        contentAlignment = Alignment.CenterEnd,
+                        modifier = GlanceModifier.defaultWeight()
+                    ) {
+                        Image(
+                            provider = ImageProvider(
+                                R.drawable.baseline_arrow_right_24
+                            ),
+                            contentDescription = null,
+                            modifier = GlanceModifier.size(80.dp)
+                                .clickable(actionRunCallback<RightAction>())
+                        )
                     }
                 }
             }
-
-            // プレイヤー操作UI
-            Row(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = GlanceModifier.fillMaxWidth().padding(20.dp)
-                    .background(Color.White.copy(alpha = 0.1f))
-                    .height(88.dp)
-            ) {
-                // Left
-                Box(
-                    contentAlignment = Alignment.CenterStart,
-                    modifier = GlanceModifier.defaultWeight()
-                ) {
-                    Image(
-                        provider = ImageProvider(
-                            R.drawable.baseline_arrow_left_24
-                        ),
-                        contentDescription = null,
-                        modifier = GlanceModifier.size(80.dp)
-                            .clickable(actionRunCallback<LeftAction>())
-                    )
-                }
-                //  Right
-                Box(
-                    contentAlignment = Alignment.CenterEnd,
-                    modifier = GlanceModifier.defaultWeight()
-                ) {
-                    Image(
-                        provider = ImageProvider(
-                            R.drawable.baseline_arrow_right_24
-                        ),
-                        contentDescription = null,
-                        modifier = GlanceModifier.size(80.dp)
-                            .clickable(actionRunCallback<RightAction>())
-                    )
-                }
-            }
+            RefreshButton()
         }
+    }
+
+    @Composable
+    private fun RefreshButton() {
+        Image(
+            provider = ImageProvider(
+                R.drawable.baseline_refresh_24
+            ),
+            contentDescription = null,
+            modifier = GlanceModifier.padding(8.dp).size(36.dp)
+                .clickable(actionRunCallback<RefreshAction>())
+        )
     }
 }
 
@@ -212,11 +195,18 @@ class LeftAction : ActionCallback {
             context = context,
             definition = GalaxyStateDefinition, glanceId = glanceId,
             updateState = {
-                val currentX = it.currentMyPositionX()
-                val nextX = if (currentX > 0) currentX - 1 else currentX
-                GalaxyState.Success(displayString = "セットしたい文字列", nextX)
+                val nextState =
+                    (it as? GalaxyState.Success)?.copy(
+                        myPositionX = moveLeft(it)
+                    ) ?: it
+                nextState
             }
         )
+    }
+
+    private fun moveLeft(it: GalaxyState): Int {
+        val currentX = it.currentMyPositionX()
+        return if (currentX > 0) currentX - 1 else currentX
     }
 }
 
@@ -230,10 +220,33 @@ class RightAction : ActionCallback {
             context = context,
             definition = GalaxyStateDefinition, glanceId = glanceId,
             updateState = {
-                val currentX = it.currentMyPositionX()
-                val nextX =
-                    if (currentX < GalaxyGlanceAppWidget.FIELD_ROW_MAX_INDEX) currentX + 1 else currentX
-                GalaxyState.Success(displayString = "セットしたい文字列", nextX)
+                val nextState =
+                    (it as? GalaxyState.Success)?.copy(
+                        myPositionX = moveRight(it)
+                    ) ?: it
+                nextState
+            }
+        )
+        GalaxyGlanceAppWidget().update(context, glanceId)
+    }
+
+    private fun moveRight(it: GalaxyState): Int {
+        val currentX = it.currentMyPositionX()
+        return if (currentX < GalaxyGlanceAppWidget.FIELD_ROW_MAX_INDEX) currentX + 1 else currentX
+    }
+}
+
+class RefreshAction : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        updateAppWidgetState(
+            context = context,
+            definition = GalaxyStateDefinition, glanceId = glanceId,
+            updateState = {
+                GalaxyState.Success()
             }
         )
         GalaxyGlanceAppWidget().update(context, glanceId)
