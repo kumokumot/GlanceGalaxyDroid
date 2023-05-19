@@ -12,7 +12,8 @@ sealed interface GalaxyState {
     data class Success(
         val displayString: String,
 
-        val myPositionX: Int = 0
+        val myPositionX: Int = 0,
+        val enemyPositionList: List<EnemyPosition> = listOf(EnemyPosition(0,0))
     ) : GalaxyState
 
     @Serializable
@@ -25,4 +26,15 @@ sealed interface GalaxyState {
             is Error -> 0
         }
     }
+
+    fun currentEnemyPositionList(): List<EnemyPosition> {
+        return when (this) {
+            is Loading -> emptyList()
+            is Success -> enemyPositionList
+            is Error -> emptyList()
+        }
+    }
 }
+
+@Serializable
+class EnemyPosition(val x: Int, val y: Int)

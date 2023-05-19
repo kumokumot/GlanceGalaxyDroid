@@ -3,8 +3,6 @@ package com.example.glancegalaxydroid
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import androidx.datastore.preferences.core.MutablePreferences
-import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
@@ -49,47 +47,38 @@ class GalaxyGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
             val ids =
                 GlanceAppWidgetManager(context).getGlanceIds(GalaxyGlanceAppWidget::class.java)
             ids.forEach { id ->
-//                updateAppWidgetState(context, id) { pref ->
-//                    updateEnemyPosition(pref)
-//                }
+                updateAppWidgetState(
+                    context = context,
+                    definition = GalaxyStateDefinition, glanceId = id,
+                    updateState = {
+                        val nextState =
+                            (it as? GalaxyState.Success)?.copy(
+                                enemyPositionList = updateEnemyPosition(it)
+                            ) ?: it
+                        nextState
+                    }
+                )
                 GalaxyGlanceAppWidget().update(context, id)
             }
         }
     }
 
-    private fun updateEnemyPosition(pref: MutablePreferences) {
-        val enemy1YKey = intPreferencesKey(GalaxyGlanceAppWidget.KEY_PREFERENCES_ENEMY_1_Y)
-        val enemy1DefaultY = 0
-        val enemy1XKey = intPreferencesKey(GalaxyGlanceAppWidget.KEY_PREFERENCES_ENEMY_1_X)
-
-        val enemy2YKey = intPreferencesKey(GalaxyGlanceAppWidget.KEY_PREFERENCES_ENEMY_2_Y)
-        val enemy2DefaultY = -3
-        val enemy2XKey = intPreferencesKey(GalaxyGlanceAppWidget.KEY_PREFERENCES_ENEMY_2_X)
-
-        val enemy3YKey = intPreferencesKey(GalaxyGlanceAppWidget.KEY_PREFERENCES_ENEMY_3_Y)
-        val enemy3DefaultY = -6
-        val enemy3XKey = intPreferencesKey(GalaxyGlanceAppWidget.KEY_PREFERENCES_ENEMY_3_X)
-
-        val keyPairList = listOf(
-            Triple(enemy1YKey, enemy1DefaultY, enemy1XKey),
-            Triple(enemy2YKey, enemy2DefaultY, enemy2XKey),
-            Triple(enemy3YKey, enemy3DefaultY, enemy3XKey)
-        )
-
-        keyPairList.forEach {
-            val enemyYKey = it.first
-            val enemyYDefault = it.second
-            val enemyXKey = it.third
-
-            val currentEnemyY = pref[enemyYKey] ?: enemyYDefault
-            if (currentEnemyY < FIELD_COLUMN_MAX_INDEX) { // リストの末尾より小さかったら
-                pref[enemyYKey] = currentEnemyY + 1
+    private fun updateEnemyPosition(it: GalaxyState): List<EnemyPosition> {
+        val currentEnemyPositionList = it.currentEnemyPositionList()
+        val nextEnemyPositionList = currentEnemyPositionList.map { enemyPosition ->
+            val nextY = enemyPosition.y + 1
+            if (nextY > FIELD_COLUMN_MAX_INDEX) {
+                EnemyPosition(
+                    x = (0..FIELD_ROW_MAX_INDEX).random(),
+                    y = 0,
+                )
             } else {
-                pref[enemyYKey] = 0
-
-                // Y座標が0になったとき（敵が出現したとき）のみランダムにX座標を変更する
-                pref[enemyXKey] = (0..FIELD_ROW_MAX_INDEX).random()
+                EnemyPosition(
+                    x = enemyPosition.x,
+                    y = nextY,
+                )
             }
         }
+        return nextEnemyPositionList
     }
 }

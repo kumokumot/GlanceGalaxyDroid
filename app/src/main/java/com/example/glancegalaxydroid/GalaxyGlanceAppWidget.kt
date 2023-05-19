@@ -208,13 +208,6 @@ class LeftAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-//        updateAppWidgetState(context, glanceId) { pref ->
-//            val key = intPreferencesKey(GalaxyGlanceAppWidget.KEY_PREFERENCES_MY_X)
-//            val currentX = pref[key] ?: 0
-//            if (currentX > 0) {
-//                pref[key] = currentX - 1
-//            }
-//        }
         updateAppWidgetState(
             context = context,
             definition = GalaxyStateDefinition, glanceId = glanceId,
@@ -233,14 +226,6 @@ class RightAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-//        updateAppWidgetState(context, glanceId) { pref ->
-//            val key = intPreferencesKey(GalaxyGlanceAppWidget.KEY_PREFERENCES_MY_X)
-//            val currentX = pref[key] ?: 0
-//            if (currentX < GalaxyGlanceAppWidget.FIELD_ROW_MAX_INDEX) {
-//                pref[key] = currentX + 1
-//            }
-//        }
-
         updateAppWidgetState(
             context = context,
             definition = GalaxyStateDefinition, glanceId = glanceId,
@@ -251,5 +236,6 @@ class RightAction : ActionCallback {
                 GalaxyState.Success(displayString = "セットしたい文字列", nextX)
             }
         )
+        GalaxyGlanceAppWidget().update(context, glanceId)
     }
 }
