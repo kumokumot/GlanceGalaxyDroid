@@ -7,8 +7,6 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.state.updateAppWidgetState
-import com.example.glancegalaxydroid.GalaxyGlanceAppWidget.Companion.FIELD_COLUMN_MAX_INDEX
-import com.example.glancegalaxydroid.GalaxyGlanceAppWidget.Companion.FIELD_ROW_MAX_INDEX
 import kotlinx.coroutines.launch
 
 class GalaxyGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
@@ -64,20 +62,8 @@ class GalaxyGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
     }
 
     private fun updateEnemyPosition(it: GalaxyState): List<EnemyPosition> {
-        val currentEnemyPositionList = it.currentEnemyPositionList()
-        val nextEnemyPositionList = currentEnemyPositionList.map { enemyPosition ->
-            val nextY = enemyPosition.y + 1
-            if (nextY > FIELD_COLUMN_MAX_INDEX) {
-                EnemyPosition(
-                    x = (0..FIELD_ROW_MAX_INDEX).random(),
-                    y = 0,
-                )
-            } else {
-                EnemyPosition(
-                    x = enemyPosition.x,
-                    y = nextY,
-                )
-            }
+        val nextEnemyPositionList = it.currentEnemyPositionList().map { enemyPosition ->
+            enemyPosition.createNextFlameEnemyPosition()
         }
         return nextEnemyPositionList
     }
