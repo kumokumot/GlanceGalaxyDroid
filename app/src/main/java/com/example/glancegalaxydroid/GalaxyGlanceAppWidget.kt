@@ -5,8 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -64,18 +62,29 @@ class GalaxyGlanceAppWidget : GlanceAppWidget() {
         provideContent { ShootingWidgetUiRoot() }
     }
 
+    override val stateDefinition = GalaxyStateDefinition
+
     @Composable
     fun ShootingWidgetUiRoot() {
-        val prefs = currentState<Preferences>()
+//        val prefs = currentState<Preferences>()
+//
+//        val enemy1X = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_1_X)] ?: 0
+//        val enemy1Y = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_1_Y)] ?: 0
+//        val enemy2X = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_2_X)] ?: 0
+//        val enemy2Y = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_2_Y)] ?: 0
+//        val enemy3X = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_3_X)] ?: 0
+//        val enemy3Y = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_3_Y)] ?: 0
+        val enemy1X = 0
+        val enemy1Y = 0
+        val enemy2X = 0
+        val enemy2Y = 0
+        val enemy3X = 0
+        val enemy3Y = 0
 
-        val enemy1X = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_1_X)] ?: 0
-        val enemy1Y = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_1_Y)] ?: 0
-        val enemy2X = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_2_X)] ?: 0
-        val enemy2Y = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_2_Y)] ?: 0
-        val enemy3X = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_3_X)] ?: 0
-        val enemy3Y = prefs[intPreferencesKey(KEY_PREFERENCES_ENEMY_3_Y)] ?: 0
+//        val myX = prefs[intPreferencesKey(KEY_PREFERENCES_MY_X)] ?: 0
 
-        val myX = prefs[intPreferencesKey(KEY_PREFERENCES_MY_X)] ?: 0
+        val galaxyState = currentState<GalaxyState>()
+        val myX = galaxyState.currentMyPositionX()
 
         ShootingWidgetUi(enemy1X, enemy1Y, enemy2X, enemy2Y, enemy3X, enemy3Y, myX)
     }
@@ -199,13 +208,22 @@ class LeftAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        updateAppWidgetState(context, glanceId) { pref ->
-            val key = intPreferencesKey(GalaxyGlanceAppWidget.KEY_PREFERENCES_MY_X)
-            val currentX = pref[key] ?: 0
-            if (currentX > 0) {
-                pref[key] = currentX - 1
+//        updateAppWidgetState(context, glanceId) { pref ->
+//            val key = intPreferencesKey(GalaxyGlanceAppWidget.KEY_PREFERENCES_MY_X)
+//            val currentX = pref[key] ?: 0
+//            if (currentX > 0) {
+//                pref[key] = currentX - 1
+//            }
+//        }
+        updateAppWidgetState(
+            context = context,
+            definition = GalaxyStateDefinition, glanceId = glanceId,
+            updateState = {
+                val currentX = it.currentMyPositionX()
+                val nextX = if (currentX > 0) currentX - 1 else currentX
+                GalaxyState.Success(displayString = "セットしたい文字列", nextX)
             }
-        }
+        )
     }
 }
 
@@ -215,12 +233,23 @@ class RightAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
-        updateAppWidgetState(context, glanceId) { pref ->
-            val key = intPreferencesKey(GalaxyGlanceAppWidget.KEY_PREFERENCES_MY_X)
-            val currentX = pref[key] ?: 0
-            if (currentX < GalaxyGlanceAppWidget.FIELD_ROW_MAX_INDEX) {
-                pref[key] = currentX + 1
+//        updateAppWidgetState(context, glanceId) { pref ->
+//            val key = intPreferencesKey(GalaxyGlanceAppWidget.KEY_PREFERENCES_MY_X)
+//            val currentX = pref[key] ?: 0
+//            if (currentX < GalaxyGlanceAppWidget.FIELD_ROW_MAX_INDEX) {
+//                pref[key] = currentX + 1
+//            }
+//        }
+
+        updateAppWidgetState(
+            context = context,
+            definition = GalaxyStateDefinition, glanceId = glanceId,
+            updateState = {
+                val currentX = it.currentMyPositionX()
+                val nextX =
+                    if (currentX < GalaxyGlanceAppWidget.FIELD_ROW_MAX_INDEX) currentX + 1 else currentX
+                GalaxyState.Success(displayString = "セットしたい文字列", nextX)
             }
-        }
+        )
     }
 }

@@ -49,9 +49,9 @@ class GalaxyGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
             val ids =
                 GlanceAppWidgetManager(context).getGlanceIds(GalaxyGlanceAppWidget::class.java)
             ids.forEach { id ->
-                updateAppWidgetState(context, id) { pref ->
-                    updateEnemyPosition(pref)
-                }
+//                updateAppWidgetState(context, id) { pref ->
+//                    updateEnemyPosition(pref)
+//                }
                 GalaxyGlanceAppWidget().update(context, id)
             }
         }
