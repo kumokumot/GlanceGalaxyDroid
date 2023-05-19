@@ -40,14 +40,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun ShootingWidgetScreenRoot(galaxyState: GalaxyState.Play) {
+fun PlayWidgetScreenRoot(galaxyState: GalaxyState.Play) {
     val myX = galaxyState.currentMyPositionX()
     val enemyPositionList = galaxyState.currentEnemyPositionList()
-    ShootingWidgetScreen(enemyPositionList, myX)
+    PlayWidgetScreen(enemyPositionList, myX)
 }
 
 @Composable
-fun ShootingWidgetScreen(
+fun PlayWidgetScreen(
     enemyPositionList: List<EnemyPosition>,
     myX: Int
 ) {
