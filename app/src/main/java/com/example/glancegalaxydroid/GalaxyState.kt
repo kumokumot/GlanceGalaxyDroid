@@ -6,32 +6,27 @@ import kotlinx.serialization.Serializable
 sealed interface GalaxyState {
 
     @Serializable
-    object Loading : GalaxyState
+    object Standby : GalaxyState
 
     @Serializable
-    data class Success(
+    data class Play(
         val displayString: String = "",
 
         val myPositionX: Int = 0,
         val enemyPositionList: List<EnemyPosition> = listOf(EnemyPosition(0,0))
     ) : GalaxyState
 
-    @Serializable
-    data class Error(val message: String) : GalaxyState
-
     fun currentMyPositionX(): Int {
         return when (this) {
-            is Loading -> 0
-            is Success -> myPositionX
-            is Error -> 0
+            is Standby -> 0
+            is Play -> myPositionX
         }
     }
 
     fun currentEnemyPositionList(): List<EnemyPosition> {
         return when (this) {
-            is Loading -> emptyList()
-            is Success -> enemyPositionList
-            is Error -> emptyList()
+            is Standby -> emptyList()
+            is Play -> enemyPositionList
         }
     }
 }

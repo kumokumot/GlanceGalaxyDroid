@@ -52,7 +52,7 @@ class GalaxyGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
                     definition = GalaxyStateDefinition, glanceId = id,
                     updateState = {
                         val nextState =
-                            (it as? GalaxyState.Success)?.copy(
+                            (it as? GalaxyState.Play)?.copy(
                                 enemyPositionList = updateEnemyPosition(it)
                             ) ?: it
                         nextState

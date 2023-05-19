@@ -28,7 +28,7 @@ object GalaxyStateDefinition : GlanceStateDefinition<GalaxyState> {
 }
 
 object GalaxyStateSerializer : Serializer<GalaxyState> {
-    override val defaultValue = GalaxyState.Error("nothing happened")
+    override val defaultValue = GalaxyState.Standby
 
     override suspend fun readFrom(input: InputStream): GalaxyState = try {
         Json.decodeFromString(
