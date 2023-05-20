@@ -49,11 +49,7 @@ class GalaxyGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
                     context = context,
                     definition = GalaxyStateDefinition, glanceId = id,
                     updateState = {
-                        val nextState =
-                            (it as? GalaxyState.Play)?.copy(
-                                enemyPositionList = updateEnemyPosition(it)
-                            ) ?: it
-                        nextState
+                        nextGalaxyState(it)
                     }
                 )
                 GalaxyGlanceAppWidget().update(context, id)
@@ -61,9 +57,24 @@ class GalaxyGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
         }
     }
 
-    private fun updateEnemyPosition(it: GalaxyState): List<EnemyPosition> {
-        val nextEnemyPositionList = it.currentEnemyPositionList().map { enemyPosition ->
+    private fun nextGalaxyState(it: GalaxyState): GalaxyState {
+
+        return (it as? GalaxyState.Play)?.copy(
+            flameCount = it.flameCount + 1,
+            enemyPositionList = updateEnemyPosition(it),
+            gameLevel = it.gameLevel.nextFlameGameLevel(it.flameCount)
+        ) ?: it
+    }
+
+    // 現状レベルアップから1フレーム遅れでの敵の追加としている（1フレーム前でセットされたレベルを使って判定しているため）
+    private fun updateEnemyPosition(galaxyState: GalaxyState.Play): List<EnemyPosition> {
+        val nextEnemyPositionList = galaxyState.currentEnemyPositionList().map { enemyPosition ->
             enemyPosition.createNextFlameEnemyPosition()
+        }.toMutableList().apply {
+            // 敵の追加
+            if (this.size < galaxyState.gameLevel.enemyCount) {
+                this.add(EnemyPosition.createInitialEnemyPosition())
+            }
         }
         return nextEnemyPositionList
     }
