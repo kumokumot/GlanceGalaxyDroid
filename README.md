@@ -17,6 +17,7 @@ https://techbookfest.org/product/fzCKu1Z8K8bmpeLvWVADac （無料ですのでぜ
 
 ## ステータス
 現在開発中です。
+主なアイテムはissuesをご確認ください。
 
 
 ## 商標
