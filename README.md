@@ -11,8 +11,8 @@ https://techbookfest.org/product/fzCKu1Z8K8bmpeLvWVADac （無料ですのでぜ
 
 
 ## 開発中イメージ
-<img width="400" src="https://github.com/kumokumot/GlanceGalaxyDroid/assets/87587734/4fe06fa5-8e13-4135-876d-b83668bc0237">
-<img width="400" src="https://github.com/kumokumot/GlanceGalaxyDroid/assets/87587734/488a7597-be1f-4bba-81d6-21552716bb2a">
+<img width="392" height="490" src="https://github.com/kumokumot/GlanceGalaxyDroid/assets/87587734/4fe06fa5-8e13-4135-876d-b83668bc0237">
+<img width="392" height="490" src="https://github.com/kumokumot/GlanceGalaxyDroid/assets/87587734/488a7597-be1f-4bba-81d6-21552716bb2a">
 
 
 ## ステータス
