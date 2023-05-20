@@ -39,6 +39,14 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+// フィールドのサイズ（Yの長さ）
+const val PLAY_FIELD_COLUMN_SIZE = 9
+const val PLAY_FIELD_COLUMN_MAX_INDEX = PLAY_FIELD_COLUMN_SIZE - 1
+
+// フィールドのサイズ（Xの長さ）
+const val PLAY_FIELD_ROW_SIZE = 10
+const val PLAY_FIELD_ROW_MAX_INDEX = PLAY_FIELD_ROW_SIZE - 1
+
 @Composable
 fun PlayWidgetScreenRoot(galaxyState: GalaxyState.Play) {
     val myX = galaxyState.currentMyPositionX()
@@ -73,9 +81,9 @@ fun PlayWidgetScreen(
         ) {
 
             // 敵機 と自機
-            val fieldRowList = List(GalaxyGlanceAppWidget.SIZE_FIELD_COLUMN) {
+            val fieldRowList = List(PLAY_FIELD_COLUMN_SIZE) {
                 MutableList(
-                    GalaxyGlanceAppWidget.SIZE_FIELD_ROW
+                    PLAY_FIELD_ROW_SIZE
                 ) { 0 }
             }
                 .apply {
@@ -85,7 +93,7 @@ fun PlayWidgetScreen(
                     }
 
                     // 自位置の適用
-                    this[GalaxyGlanceAppWidget.FIELD_COLUMN_MAX_INDEX][myX] = 1
+                    this[PLAY_FIELD_COLUMN_MAX_INDEX][myX] = 1
                 }
             fieldRowList.forEach {
                 Row(
@@ -219,7 +227,7 @@ class RightAction : ActionCallback {
 
     private fun moveRight(it: GalaxyState): Int {
         val currentX = it.currentMyPositionX()
-        return if (currentX < GalaxyGlanceAppWidget.FIELD_ROW_MAX_INDEX) currentX + 1 else currentX
+        return if (currentX < PLAY_FIELD_ROW_MAX_INDEX) currentX + 1 else currentX
     }
 }
 

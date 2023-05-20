@@ -11,16 +11,6 @@ import com.example.glancegalaxydroid.ui.StandbyWidgetScreen
 
 class GalaxyGlanceAppWidget : GlanceAppWidget() {
 
-    companion object {
-        // フィールドのサイズ（Yの長さ）
-        const val SIZE_FIELD_COLUMN = 9
-        const val FIELD_COLUMN_MAX_INDEX = SIZE_FIELD_COLUMN - 1
-
-        // フィールドのサイズ（Xの長さ）
-        const val SIZE_FIELD_ROW = 10
-        const val FIELD_ROW_MAX_INDEX = SIZE_FIELD_ROW - 1
-    }
-
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent { GalaxyContent() }
     }

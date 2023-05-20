@@ -1,5 +1,7 @@
 package com.example.glancegalaxydroid
 
+import com.example.glancegalaxydroid.ui.PLAY_FIELD_COLUMN_MAX_INDEX
+import com.example.glancegalaxydroid.ui.PLAY_FIELD_ROW_MAX_INDEX
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -76,14 +78,14 @@ class EnemyPosition private constructor(val x: Int, val y: Int) {
 
     companion object {
         fun createInitialEnemyPosition() =
-            EnemyPosition((0..GalaxyGlanceAppWidget.FIELD_ROW_MAX_INDEX).random(), 0)
+            EnemyPosition((0..PLAY_FIELD_ROW_MAX_INDEX).random(), 0)
     }
 
     fun createNextFlameEnemyPosition(): EnemyPosition {
         val nextY = y + 1
-        return if (nextY > GalaxyGlanceAppWidget.FIELD_COLUMN_MAX_INDEX) {
+        return if (nextY > PLAY_FIELD_COLUMN_MAX_INDEX) {
             EnemyPosition(
-                x = (0..GalaxyGlanceAppWidget.FIELD_ROW_MAX_INDEX).random(),
+                x = (0..PLAY_FIELD_ROW_MAX_INDEX).random(),
                 y = 0,
             )
         } else {
