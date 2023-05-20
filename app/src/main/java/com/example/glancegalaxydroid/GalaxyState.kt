@@ -12,8 +12,7 @@ sealed interface GalaxyState {
 
     @Serializable
     data class Play(
-        val displayString: String = "",
-
+        val playScore: Int = 0,
         val flameCount: Int = 0,
         val gameLevel: GameLevel = GameLevel.LEVEL_1,
         val myPositionX: Int = 0,

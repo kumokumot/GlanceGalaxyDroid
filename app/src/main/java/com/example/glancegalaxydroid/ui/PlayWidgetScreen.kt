@@ -22,11 +22,14 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
+import androidx.glance.text.Text
+import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.example.glancegalaxydroid.EnemyPosition
 import com.example.glancegalaxydroid.GalaxyApplication
@@ -49,13 +52,15 @@ const val PLAY_FIELD_ROW_MAX_INDEX = PLAY_FIELD_ROW_SIZE - 1
 
 @Composable
 fun PlayWidgetScreenRoot(galaxyState: GalaxyState.Play) {
-    val myX = galaxyState.currentMyPositionX()
-    val enemyPositionList = galaxyState.currentEnemyPositionList()
-    PlayWidgetScreen(enemyPositionList, myX)
+    val playScore = galaxyState.playScore
+    val myX = galaxyState.myPositionX
+    val enemyPositionList = galaxyState.enemyPositionList
+    PlayWidgetScreen(playScore, enemyPositionList, myX)
 }
 
 @Composable
 fun PlayWidgetScreen(
+    playScore: Int,
     enemyPositionList: List<EnemyPosition>,
     myX: Int
 ) {
@@ -164,7 +169,25 @@ fun PlayWidgetScreen(
                 }
             }
         }
-        RefreshButton()
+        StatusBar(playScore)
+    }
+}
+
+@Composable
+private fun StatusBar(playScore: Int) {
+    Row(modifier = GlanceModifier.fillMaxWidth()) {
+        Box(
+            contentAlignment = Alignment.CenterStart
+        ) {
+            RefreshButton()
+        }
+        Spacer(modifier = GlanceModifier.defaultWeight())
+        Box(
+            modifier = GlanceModifier.defaultWeight(),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            PlayScore(playScore)
+        }
     }
 }
 
@@ -177,6 +200,15 @@ private fun RefreshButton() {
         contentDescription = null,
         modifier = GlanceModifier.padding(8.dp).size(36.dp)
             .clickable(actionRunCallback<RefreshAction>())
+    )
+}
+
+@Composable
+private fun PlayScore(playScore: Int) {
+    Text(
+        text = "Score: $playScore",
+        style = TextStyle(color = ColorProvider(Color.White)),
+        modifier = GlanceModifier.padding(8.dp)
     )
 }
 

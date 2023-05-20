@@ -60,6 +60,7 @@ class GalaxyGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
     private fun nextGalaxyState(it: GalaxyState): GalaxyState {
 
         return (it as? GalaxyState.Play)?.copy(
+            playScore = it.playScore + 128,
             flameCount = it.flameCount + 1,
             enemyPositionList = updateEnemyPosition(it),
             gameLevel = it.gameLevel.nextFlameGameLevel(it.flameCount)
