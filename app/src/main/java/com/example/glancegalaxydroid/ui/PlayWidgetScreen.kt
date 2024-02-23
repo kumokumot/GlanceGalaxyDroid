@@ -24,6 +24,7 @@ import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
@@ -57,7 +58,8 @@ fun PlayWidgetScreenRoot(galaxyState: GalaxyState.Play) {
     val stock = galaxyState.stock
     val myX = galaxyState.myPositionX
     val enemyPositionList = galaxyState.enemyPositionList
-    PlayWidgetScreen(playScore, stock, enemyPositionList, myX)
+    val isGameOver = galaxyState.isGameOver
+    PlayWidgetScreen(playScore, stock, enemyPositionList, myX, isGameOver)
 }
 
 @Composable
@@ -65,7 +67,8 @@ fun PlayWidgetScreen(
     playScore: Int,
     stock: Int,
     enemyPositionList: List<EnemyPosition>,
-    myX: Int
+    myX: Int,
+    isGameOver: Boolean
 ) {
     val context = LocalContext.current
     val scope = GalaxyApplication.applicationScope
@@ -119,12 +122,14 @@ fun PlayWidgetScreen(
                                     colorFilter = ColorFilter.tint(ColorProvider(Color.Cyan))
                                 )
                             } else if (it == 1) { // 自機
-                                Image(
-                                    provider = ImageProvider(
-                                        R.drawable.jetdroid
-                                    ),
-                                    contentDescription = null,
-                                )
+                                if (!isGameOver) {
+                                    Image(
+                                        provider = ImageProvider(
+                                            R.drawable.jetdroid
+                                        ),
+                                        contentDescription = null,
+                                    )
+                                }
                             } else {
                                 Box(modifier = GlanceModifier.width(108.dp)) {
                                 }
@@ -135,7 +140,7 @@ fun PlayWidgetScreen(
                 }
             }
             // 敵機と自機が衝突した場合
-            if (enemyPositionList.any { it.y == PLAY_FIELD_COLUMN_MAX_INDEX && it.x == myX }) {
+            if (!isGameOver && enemyPositionList.any { it.y == PLAY_FIELD_COLUMN_MAX_INDEX && it.x == myX }) {
                 LaunchedEffect(true) {
                     updateAppWidgetState(
                         context = context,
@@ -147,7 +152,6 @@ fun PlayWidgetScreen(
                             val nextState =
                                 (it as? GalaxyState.Play)?.copy(
                                     stock = it.stock - 1,
-                                    isGameOver = it.stock - 1 <= 0
                                 ) ?: it
                             nextState
                         }
@@ -162,43 +166,57 @@ fun PlayWidgetScreen(
             }
 
             // プレイヤー操作UI
-            Row(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = GlanceModifier.fillMaxWidth().padding(20.dp)
-                    .background(Color.White.copy(alpha = 0.1f))
-                    .height(88.dp)
-            ) {
-                // Left
-                Box(
-                    contentAlignment = Alignment.CenterStart,
-                    modifier = GlanceModifier.defaultWeight()
+            if (!isGameOver) {
+                Row(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = GlanceModifier.fillMaxWidth().padding(20.dp)
+                        .background(Color.White.copy(alpha = 0.1f))
+                        .height(88.dp)
                 ) {
-                    Image(
-                        provider = ImageProvider(
-                            R.drawable.baseline_arrow_left_24
-                        ),
-                        contentDescription = null,
-                        modifier = GlanceModifier.size(80.dp)
-                            .clickable(actionRunCallback<LeftAction>())
-                    )
-                }
-                //  Right
-                Box(
-                    contentAlignment = Alignment.CenterEnd,
-                    modifier = GlanceModifier.defaultWeight()
-                ) {
-                    Image(
-                        provider = ImageProvider(
-                            R.drawable.baseline_arrow_right_24
-                        ),
-                        contentDescription = null,
-                        modifier = GlanceModifier.size(80.dp)
-                            .clickable(actionRunCallback<RightAction>())
-                    )
+                    // Left
+                    Box(
+                        contentAlignment = Alignment.CenterStart,
+                        modifier = GlanceModifier.defaultWeight()
+                    ) {
+                        Image(
+                            provider = ImageProvider(
+                                R.drawable.baseline_arrow_left_24
+                            ),
+                            contentDescription = null,
+                            modifier = GlanceModifier.size(80.dp)
+                                .clickable(actionRunCallback<LeftAction>())
+                        )
+                    }
+                    //  Right
+                    Box(
+                        contentAlignment = Alignment.CenterEnd,
+                        modifier = GlanceModifier.defaultWeight()
+                    ) {
+                        Image(
+                            provider = ImageProvider(
+                                R.drawable.baseline_arrow_right_24
+                            ),
+                            contentDescription = null,
+                            modifier = GlanceModifier.size(80.dp)
+                                .clickable(actionRunCallback<RightAction>())
+                        )
+                    }
                 }
             }
         }
         StatusBar(playScore, stock)
+
+        if (isGameOver) {
+            Box(GlanceModifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column() {
+                    Text(text = "Game Over", style = TextStyle(color = ColorProvider(Color.White)))
+                    Text(
+                        text = "Score: $playScore",
+                        style = TextStyle(color = ColorProvider(Color.White))
+                    )
+                }
+            }
+        }
     }
 }
 

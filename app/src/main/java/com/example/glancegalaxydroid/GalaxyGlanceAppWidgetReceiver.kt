@@ -59,12 +59,21 @@ class GalaxyGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
 
     private fun nextGalaxyState(it: GalaxyState): GalaxyState {
 
-        return (it as? GalaxyState.Play)?.copy(
+        val playState = (it as? GalaxyState.Play) ?: return it
+
+        return if (playState.stock <= 0) {
+            // ゲームオーバー
+            it.copy(
+                flameCount = it.flameCount + 1,
+                enemyPositionList = updateEnemyPosition(it),
+                isGameOver = true
+            )
+        } else playState.copy(
             playScore = it.playScore + 128,
             flameCount = it.flameCount + 1,
             enemyPositionList = updateEnemyPosition(it),
             gameLevel = it.gameLevel.nextFlameGameLevel(it.flameCount)
-        ) ?: it
+        )
     }
 
     // 現状レベルアップから1フレーム遅れでの敵の追加としている（1フレーム前でセットされたレベルを使って判定しているため）
