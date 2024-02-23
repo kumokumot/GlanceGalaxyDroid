@@ -13,6 +13,7 @@ import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
@@ -53,14 +54,16 @@ const val PLAY_FIELD_ROW_MAX_INDEX = PLAY_FIELD_ROW_SIZE - 1
 @Composable
 fun PlayWidgetScreenRoot(galaxyState: GalaxyState.Play) {
     val playScore = galaxyState.playScore
+    val stock = galaxyState.stock
     val myX = galaxyState.myPositionX
     val enemyPositionList = galaxyState.enemyPositionList
-    PlayWidgetScreen(playScore, enemyPositionList, myX)
+    PlayWidgetScreen(playScore, stock, enemyPositionList, myX)
 }
 
 @Composable
 fun PlayWidgetScreen(
     playScore: Int,
+    stock: Int,
     enemyPositionList: List<EnemyPosition>,
     myX: Int
 ) {
@@ -86,7 +89,7 @@ fun PlayWidgetScreen(
         ) {
 
             // 敵機 と自機
-            val fieldRowList = List(PLAY_FIELD_COLUMN_SIZE) {
+            val fieldRowList: List<MutableList<Int>> = List(PLAY_FIELD_COLUMN_SIZE) {
                 MutableList(
                     PLAY_FIELD_ROW_SIZE
                 ) { 0 }
@@ -100,11 +103,11 @@ fun PlayWidgetScreen(
                     // 自位置の適用
                     this[PLAY_FIELD_COLUMN_MAX_INDEX][myX] = 1
                 }
-            fieldRowList.forEach {
+            fieldRowList.forEach { row ->
                 Row(
                     modifier = GlanceModifier.defaultWeight()
                 ) {
-                    it.forEach {
+                    row.forEach {
                         Box(modifier = GlanceModifier.defaultWeight())
                         {
                             if (it == 2) { // 暫定で2が敵機
@@ -130,6 +133,32 @@ fun PlayWidgetScreen(
 
                     }
                 }
+            }
+            // 敵機と自機が衝突した場合
+            if (enemyPositionList.any { it.y == PLAY_FIELD_COLUMN_MAX_INDEX && it.x == myX }) {
+                LaunchedEffect(true) {
+                    updateAppWidgetState(
+                        context = context,
+                        definition = GalaxyStateDefinition,
+                        glanceId = GlanceAppWidgetManager(context).getGlanceIds(
+                            GalaxyGlanceAppWidget::class.java
+                        ).first(),
+                        updateState = {
+                            val nextState =
+                                (it as? GalaxyState.Play)?.copy(
+                                    stock = it.stock - 1,
+                                    isGameOver = it.stock - 1 <= 0
+                                ) ?: it
+                            nextState
+                        }
+                    )
+                }
+                Image(
+                    provider = ImageProvider(
+                        R.drawable.explosion
+                    ),
+                    contentDescription = null,
+                )
             }
 
             // プレイヤー操作UI
@@ -169,12 +198,12 @@ fun PlayWidgetScreen(
                 }
             }
         }
-        StatusBar(playScore)
+        StatusBar(playScore, stock)
     }
 }
 
 @Composable
-private fun StatusBar(playScore: Int) {
+private fun StatusBar(playScore: Int, stock: Int) {
     Row(modifier = GlanceModifier.fillMaxWidth()) {
         Box(
             contentAlignment = Alignment.CenterStart
@@ -186,7 +215,20 @@ private fun StatusBar(playScore: Int) {
             modifier = GlanceModifier.defaultWeight(),
             contentAlignment = Alignment.CenterStart
         ) {
-            PlayScore(playScore)
+            Column {
+                PlayScore(playScore)
+                Row(modifier = GlanceModifier.fillMaxWidth(), horizontalAlignment = Alignment.End) {
+                    repeat((1..stock).count()) {
+                        Image(
+                            provider = ImageProvider(
+                                R.drawable.jetdroid
+                            ),
+                            contentDescription = null,
+                            modifier = GlanceModifier.size(16.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 }

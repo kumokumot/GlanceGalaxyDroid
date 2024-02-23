@@ -16,7 +16,9 @@ sealed interface GalaxyState {
         val flameCount: Int = 0,
         val gameLevel: GameLevel = GameLevel.LEVEL_1,
         val myPositionX: Int = 0,
-        val enemyPositionList: List<EnemyPosition> = listOf(EnemyPosition.createInitialEnemyPosition())
+        val enemyPositionList: List<EnemyPosition> = listOf(EnemyPosition.createInitialEnemyPosition()),
+        val stock: Int = 3, // 残機
+        val isGameOver: Boolean = false,
     ) : GalaxyState
 
     fun currentMyPositionX(): Int {
@@ -34,11 +36,11 @@ sealed interface GalaxyState {
     }
 }
 
-private const val LEVEL_INCREMENTAL = 5
+private const val LEVEL_INCREMENTAL = 2
 
 @Serializable
 enum class GameLevel(val enemyCount: Int, private val levelUpThreshold: Int) {
-    LEVEL_1(1, 5),
+    LEVEL_1(1, 3),
     LEVEL_2(2, LEVEL_1.levelUpThreshold + LEVEL_INCREMENTAL),
     LEVEL_3(3, LEVEL_2.levelUpThreshold + LEVEL_INCREMENTAL),
     LEVEL_4(4, LEVEL_3.levelUpThreshold + LEVEL_INCREMENTAL),
