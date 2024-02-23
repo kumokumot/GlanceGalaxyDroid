@@ -14,7 +14,7 @@
         tools:targetApi="31">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.GlanceGalaxyDroid">
@@ -33,6 +33,13 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_meta_data" />
+        </receiver>
+
+        <receiver android:name=".activity.AppWidgetPinnedReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_PINNED" />
+            </intent-filter>
         </receiver>
 
     </application>
